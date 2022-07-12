@@ -1,30 +1,60 @@
 blueprint:
-  name: Motion-activated Light
-  description: Turn on a light when motion is detected.
+  name: Air Control - Switch
+  description: Air control using door sensor and helper switch (part 2)
   domain: automation
   input:
-    motion_entity:
-      name: Motion Sensor
+    air_sensor_entity:
+      name: Binary Sensor
       selector:
         entity:
           domain: binary_sensor
-    light_target:
-      name: Light
+    virtual_switch_entity:
+      name: Virtual Switch
       selector:
-        target:
-          entity:
-            domain: light
-
-# If motion is detected within the delay,
-# we restart the script.
-mode: restart
-max_exceeded: silent
+        entity:
+          domain: input_boolean
+    turn_on_entity:
+      name: Turn On
+      selector:
+        entity:
+          domain: scene
+    turn_off_entity:
+      name: Turn Off
+      selector:
+        entity:
+          domain: scene
+variables:
+  turn_on_entity: !input turn_on_entity
+  turn_off_entity: !input turn_off_entity
 
 trigger:
-  platform: state
-  entity_id: !input motion_entity
-
+  - platform: state
+    entity_id:
+      - !input virtual_switch_entity
+condition:
+  - condition: or
+    conditions:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: !input virtual_switch_entity
+            state: 'on'
+          - condition: state
+            entity_id: !input air_sensor_entity
+            state: 'off'
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: !input virtual_switch_entity
+            state: 'off'
+          - condition: state
+            entity_id: !input air_sensor_entity
+            state: 'on'
 action:
-  - alias: "Turn on the light"
-    service: light.turn_on
-    target: !input light_target
+  - service_template: scene.turn_on
+    data_template:
+      entity_id: >
+        {% if trigger.to_state.state == "on" %}{{ turn_on_entity }}{% else
+        %}{{ turn_off_entity }}{% endif %}
+
+mode: single

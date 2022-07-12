@@ -1,17 +1,15 @@
 blueprint:
-  name: Air Control - Sensor (P1)
-  description: Air Control using Door Sensor and Helper Switch
+  name: Air Control - Sensor
+  description: Air control using door sensor and helper switch
   domain: automation
   input:
     virtual_switch:
       name: Virtual Switch
-      description: Boolean input created by helper
       selector:
         entity:
           domain: input_boolean
     air_sensor:
-      name: Binary Sensor
-      description: Door sensor attach to AC
+      name: Air Sensor
       selector:
         entity:
           domain: binary_sensor
@@ -20,9 +18,8 @@ mode: single
 max_exceeded: slient
 
 trigger:
-  - platform: state
-    entity_id:
-      - !input air_sensor
+  platform: state
+  entity_id: !input air_sensor
 condition:
   - condition: or
     conditions:
@@ -43,8 +40,7 @@ condition:
             entity_id: !input air_sensor
             state: 'on'
 action:
-  - service: input_boolean.toggle
-    data: {}
-    target:
-      entity_id: !input virtual_switch
-mode: single
+  - alias: "Toggle the virtual switch"
+    service: input_boolean.toggle
+    target: !input virtual_switch
+

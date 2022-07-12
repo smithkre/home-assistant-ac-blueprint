@@ -14,7 +14,7 @@ blueprint:
         entity:
           domain: binary_sensor
 
-mode: single
+mode: restart
 max_exceeded: slient
 
 trigger:
@@ -27,18 +27,18 @@ condition:
         conditions:
           - condition: state
             entity_id: !input virtual_switch
-            state: 'on'
+            state: "on"
           - condition: state
             entity_id: !input air_sensor
-            state: 'off'
+            state: "off"
       - condition: and
         conditions:
           - condition: state
             entity_id: !input virtual_switch
-            state: 'off'
+            state: "off"
           - condition: state
             entity_id: !input air_sensor
-            state: 'on'
+            state: "on"
 action:
   - alias: "Toggle the virtual switch"
     service: input_boolean.toggle
